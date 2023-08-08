@@ -8,7 +8,8 @@ import (
 )
 
 type Server struct {
-	Listen string `env:"listen"`
+	Listen  string `env:""`
+	AppName string `env:""`
 
 	e *gin.Engine
 }
@@ -24,6 +25,10 @@ func (s *Server) SetDefaults() {
 		s.Listen = ":8080"
 	}
 
+	if s.AppName == "" {
+		s.AppName = "demo"
+	}
+
 	if s.e == nil {
 		s.e = gin.Default()
 	}
@@ -31,6 +36,10 @@ func (s *Server) SetDefaults() {
 
 func (s *Server) Initialize() {
 }
+
+// func (s *Server) WithAppName(name string) {
+// 	s.AppName = name
+// }
 
 func (s *Server) WithEngine(e *gin.Engine) {
 	s.e = e
@@ -46,5 +55,7 @@ func (s *Server) Run() {
 }
 
 func (s *Server) RegisteRouter(f RouterGroupFunc) {
-	f(s.e)
+	// f(s.e)
+	r := s.e.Group(s.AppName)
+	f(r)
 }
