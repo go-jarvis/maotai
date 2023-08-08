@@ -2,6 +2,7 @@ package maotai
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -26,20 +27,24 @@ func (s *Server) SetDefaults() {
 	}
 
 	if s.AppName == "" {
-		s.AppName = "demo"
+		s.AppName = "appname"
 	}
 
 	if s.e == nil {
-		s.e = gin.Default()
+		s.e = s.defaultEngine()
 	}
 }
 
-func (s *Server) Initialize() {
-}
+func (s *Server) defaultEngine() *gin.Engine {
 
-// func (s *Server) WithAppName(name string) {
-// 	s.AppName = name
-// }
+	engine := gin.New()
+	logger := gin.LoggerWithConfig(gin.LoggerConfig{
+		SkipPaths: []string{"", "/", "/ping", "/liveness"},
+	})
+	engine.Use(logger, gin.Recovery())
+
+	return engine
+}
 
 func (s *Server) WithEngine(e *gin.Engine) {
 	s.e = e
@@ -55,7 +60,10 @@ func (s *Server) Run() {
 }
 
 func (s *Server) RegisteRouter(f RouterGroupFunc) {
-	// f(s.e)
+	s.e.Handle(http.MethodGet, "", pingHandler)
+	// s.e.Handle(http.MethodGet, "/ping", pingHandler)
+	// s.e.Handle(http.MethodGet, "/liveness", pingHandler)
+
 	r := s.e.Group(s.AppName)
 	f(r)
 }
