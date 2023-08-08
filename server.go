@@ -24,12 +24,12 @@ func (s *Server) SetDefaults() {
 		s.Listen = ":8080"
 	}
 
-}
-
-func (s *Server) Initialize() {
 	if s.e == nil {
 		s.e = gin.Default()
 	}
+}
+
+func (s *Server) Initialize() {
 }
 
 func (s *Server) WithEngine(e *gin.Engine) {
@@ -43,4 +43,8 @@ func (s *Server) Engine() *gin.Engine {
 func (s *Server) Run() {
 
 	s.e.Run(s.Listen)
+}
+
+func (s *Server) RegisteRouter(f RouterGroupFunc) {
+	f(s.e)
 }
